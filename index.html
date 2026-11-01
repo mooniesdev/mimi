@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lettres du 1er</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Caveat:wght@500;600&family=DM+Mono:wght@400&display=swap">
+<style>
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+
+/* Layout : une nuit calme, une enveloppe au centre qui s'ouvre sur la lettre, puis la prochaine date. Thème sombre unique, voulu. */
+:root{
+  --night:#1c1a2e;
+  --night-2:#2a2640;
+  --paper:#fbf3f1;
+  --ink:#3a2f45;
+  --rose:#c96f86;
+  --rose-deep:#9e4a62;
+  --moon:#f1e3c8;
+  --muted:#a9a2c2;
+  --f-display:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --f-hand:"Caveat", "Segoe Print", "Bradley Hand", cursive;
+  --f-mono:"DM Mono", ui-monospace, Menlo, monospace;
+  color-scheme:dark;
+}
+body{
+  background:radial-gradient(120% 70% at 50% -10%, var(--night-2), var(--night) 60%) fixed, var(--night);
+  color:var(--moon);
+  font-family:var(--f-display);
+  min-height:100%;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  padding-block:40px 64px;
+  overflow-x:hidden;
+}
+#stars{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+main{position:relative;z-index:1;max-width:620px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:36px}
+
+header{text-align:center;display:flex;flex-direction:column;gap:8px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+h1{font-weight:400;font-size:clamp(2.6rem,9vw,4rem);line-height:1;margin:0;text-wrap:balance}
+h1 em{color:var(--rose);font-style:italic}
+
+/* Enveloppe */
+.envelope-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%}
+.envelope{
+  position:relative;width:min(100%,380px);aspect-ratio:1.55;max-width:100%;
+  background:none;border:0;padding:0;cursor:pointer;perspective:900px;
+  transition:transform .3s ease;
+}
+.envelope:hover{transform:translateY(-4px) rotate(-1deg)}
+.envelope:focus-visible{outline:2px dashed var(--rose);outline-offset:8px;border-radius:6px}
+.env-back,.env-front,.env-flap{position:absolute;inset:0;border-radius:6px}
+.env-back{background:#e9d9d6;box-shadow:0 20px 50px rgba(0,0,0,.45)}
+.env-front{
+  background:
+    linear-gradient(to top right, #f2e4e1 49.6%, transparent 50%) left/50% 100% no-repeat,
+    linear-gradient(to top left,  #f2e4e1 49.6%, transparent 50%) right/50% 100% no-repeat,
+    linear-gradient(#ead9d6 0 0) bottom/100% 0 no-repeat;
+  z-index:3;
+}
+.env-front::after{content:"";position:absolute;inset:auto 0 0 0;height:55%;
+  background:linear-gradient(to top, #f4e7e4, #efe0dc);clip-path:polygon(0 100%,50% 0,100% 100%);border-radius:0 0 6px 6px}
+.env-flap{
+  z-index:4;transform-origin:top center;transition:transform .7s cubic-bezier(.6,.1,.3,1), z-index 0s .35s;
+  background:linear-gradient(#e3d0cc,#dcc6c1);clip-path:polygon(0 0,100% 0,50% 62%);
+}
+.seal{
+  position:absolute;z-index:5;left:50%;top:62%;translate:-50% -50%;
+  width:62px;height:62px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #d98aa0, var(--rose-deep) 70%);
+  box-shadow:0 3px 0 #7d3a4e, 0 6px 14px rgba(0,0,0,.3);
+  display:grid;place-items:center;transition:opacity .3s, transform .3s;
+}
+.seal svg{width:28px;height:28px}
+.env-date{position:absolute;z-index:5;left:0;right:0;bottom:14px;text-align:center;font-family:var(--f-hand);font-size:1.35rem;color:var(--ink)}
+.peek{
+  position:absolute;z-index:2;left:7%;right:7%;top:8%;bottom:8%;background:var(--paper);border-radius:3px;
+  transition:transform .6s .35s cubic-bezier(.3,.7,.3,1);
+}
+.envelope.open .env-flap{transform:rotateX(180deg);z-index:1}
+.envelope.open .seal{opacity:0;transform:scale(.6)}
+.envelope.open .peek{transform:translateY(-38%)}
+.hint{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+
+/* Lettre */
+.letter{
+  width:100%;background:var(--paper);color:var(--ink);border-radius:4px;
+  padding:clamp(24px,6vw,48px);
+  box-shadow:0 30px 60px rgba(0,0,0,.4);
+  background-image:repeating-linear-gradient(to bottom, transparent 0 37px, rgba(201,111,134,.16) 37px 38px);
+  background-position:0 22px;
+  transform-origin:top center;
+  animation:unfold .8s cubic-bezier(.3,.7,.3,1) both;
+}
+@keyframes unfold{from{opacity:0;transform:translateY(-30px) scaleY(.92)}to{opacity:1;transform:none}}
+.letter-meta{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--rose-deep);margin-bottom:20px}
+.letter p{font-family:var(--f-hand);font-size:clamp(1.35rem,4.6vw,1.6rem);line-height:38px;margin:0 0 38px;max-width:62ch}
+.letter p.greet{font-size:clamp(1.7rem,6vw,2.1rem);color:var(--rose-deep)}
+.letter .sign{text-align:right;margin:0}
+.letter .sign span{display:block;font-size:clamp(1.8rem,6vw,2.2rem);color:var(--rose-deep)}
+
+/* Prochaine lettre */
+.next{text-align:center;display:flex;flex-direction:column;gap:6px;padding-top:8px}
+.next .big{font-size:clamp(1.8rem,6vw,2.4rem);line-height:1.1}
+.next .big em{color:var(--rose)}
+.again{background:none;border:1px solid rgba(169,162,194,.4);color:var(--muted);font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;padding:10px 16px;border-radius:999px;cursor:pointer;margin-top:10px}
+.again:hover{color:var(--moon);border-color:var(--moon)}
+.again:focus-visible{outline:2px solid var(--rose);outline-offset:3px}
+
+.fly-heart{position:fixed;z-index:20;pointer-events:none;font-family:Georgia,serif;line-height:1;will-change:transform,opacity}
+
+/* Chat qui danse */
+.cat{width:130px;height:130px;max-width:100%;overflow:visible;margin:0 auto}
+.cat *{transform-box:view-box}
+.cat .whole{transform-origin:60px 112px;animation:sway .7s ease-in-out infinite alternate}
+.cat .head{transform-origin:60px 70px;animation:tilt .7s ease-in-out infinite alternate}
+.cat .arm-l{transform-origin:42px 80px;animation:wave-l .35s ease-in-out infinite alternate}
+.cat .arm-r{transform-origin:78px 80px;animation:wave-r .35s ease-in-out infinite alternate}
+.cat .tail{transform-origin:80px 98px;animation:wag .5s ease-in-out infinite alternate}
+.cat .heart{transform-origin:60px 20px;animation:float 1.4s ease-in-out infinite}
+@keyframes sway{from{transform:translateY(0) rotate(-7deg)}to{transform:translateY(-6px) rotate(7deg)}}
+@keyframes tilt{from{transform:rotate(8deg)}to{transform:rotate(-8deg)}}
+@keyframes wave-l{from{transform:rotate(10deg)}to{transform:rotate(-45deg)}}
+@keyframes wave-r{from{transform:rotate(45deg)}to{transform:rotate(-10deg)}}
+@keyframes wag{from{transform:rotate(-15deg)}to{transform:rotate(20deg)}}
+@keyframes float{0%{transform:translateY(4px) scale(.9);opacity:.5}50%{transform:translateY(-4px) scale(1.1);opacity:1}100%{transform:translateY(4px) scale(.9);opacity:.5}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="stars" aria-hidden="true"></canvas>
+<main>
+  <header>
+    <h1>Lettre pour <em>ma mimi</em></h1>
+  </header>
+
+  <section class="envelope-wrap" id="envSection">
+    <button class="envelope" id="envelope" aria-label="Ouvrir la lettre de novembre">
+      <span class="env-back"></span>
+      <span class="peek"></span>
+      <span class="env-front"></span>
+      <span class="env-flap"></span>
+      <span class="seal" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="#fbe3ea"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.2 4.3 2.4.7-1.2 2.2-2.4 4.3-2.4 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>
+      </span>
+      <span class="env-date">1er novembre 2026</span>
+    </button>
+    <span class="hint" id="hint">Touche l'enveloppe pour l'ouvrir</span>
+  </section>
+
+  <article class="letter" id="letter" hidden>
+    <div class="letter-meta"><span>Lettre de novembre</span><span>1er novembre 2026</span></div>
+    <p class="greet">Ma chère mimi, </p>
+    <p>Malheureusement j’ai été pris de court et je n’ai pas pu t’envoyer ma lettre de début du mois comme je le fais habituellement. </p>
+    <p>Alors je me suis dit autant faire un petit site qui gardera l’esprit et la surprise de ça. </p>
+    <p>Par quoi commencer, je peux dire que le mois d’octobre fut long et surtout blessant, bien sûr il y a eu des moments où ça allait et d’autres non, je vais pas remuer le couteau dans la plaie mais voilà ce que je peux dire pour toi : </p>
+    <p>Encore une fois tu as réussi à surmonter cette vague d’épreuves, certes tu es passée par toutes les émotions mais en fin de compte tu as réussi, tu es encore là debout et pleine de vie. </p>
+    <p>Je te le dis souvent mais sincèrement je suis tellement fier de toi, je sais que les moments peuvent être dur mais t’as jamais baissé les bras et ça c’est impressionnant, tu es courageuse et forte et ça personne pourra dire le contraire (ou alors je le bagar). </p>
+    <p>J’espère que ce début de mois et surtout ce mois-ci ça ira un peu mieux… je te le souhaite car tu mérites tellement de repos et de souffler par rapport à tout ce qui t’arrivent récemment. </p>
+    <p>Tu le sais, je serai toujours là pour essayer d’amortir ta chute, et essayer de te remonter le moral, te montrer que tout ira bien parce que oui forcément tout ira bien, il le faut. </p>
+    <p>J’essaie de m’améliorer moi sur mon état d’esprit, comme ça plus jamais ça viendra empiéter sur ton territoire et comme ça, je serai encore plus fort pour te soutenir. </p>
+    <p>Je pense tous les jours à toi, tu es dans mon cœur, tout le temps… </p>
+    <p class="sign"><span>Ma chère mimi, je te aime.</span></p>
+  </article>
+
+  <section class="next" id="next" hidden>
+    <svg class="cat" viewBox="0 0 120 120" aria-hidden="true">
+      <path class="heart" d="M60 26s-7-4.3-9-8.6C49.6 14.2 51.5 10.6 55 10.6c2 0 3.4 1.1 4 2.2.6-1.1 2-2.2 4-2.2 3.5 0 5.4 3.6 4 6.8-2 4.3-9 8.6-9 8.6z" fill="var(--rose)"/>
+      <g class="whole">
+        <path class="tail" d="M80 98 C98 96 104 80 98 66" stroke="var(--moon)" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <line class="arm-l" x1="42" y1="80" x2="28" y2="86" stroke="var(--moon)" stroke-width="7" stroke-linecap="round"/>
+        <line class="arm-r" x1="78" y1="80" x2="92" y2="86" stroke="var(--moon)" stroke-width="7" stroke-linecap="round"/>
+        <ellipse cx="60" cy="92" rx="21" ry="20" fill="var(--moon)"/>
+        <ellipse cx="50" cy="111" rx="7" ry="4" fill="var(--moon)"/>
+        <ellipse cx="70" cy="111" rx="7" ry="4" fill="var(--moon)"/>
+        <g class="head">
+          <polygon points="42,52 40,32 55,44" fill="var(--moon)"/>
+          <polygon points="78,52 80,32 65,44" fill="var(--moon)"/>
+          <polygon points="44,47 43,37 50,43" fill="var(--rose)"/>
+          <polygon points="76,47 77,37 70,43" fill="var(--rose)"/>
+          <circle cx="60" cy="56" r="20" fill="var(--moon)"/>
+          <path d="M49 55 q3.5 -4 7 0 M64 55 q3.5 -4 7 0" stroke="var(--ink)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+          <path d="M56 62 q2 2.5 4 0 q2 2.5 4 0" stroke="var(--ink)" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <circle cx="47" cy="62" r="3.2" fill="var(--rose)" opacity=".6"/>
+          <circle cx="73" cy="62" r="3.2" fill="var(--rose)" opacity=".6"/>
+        </g>
+      </g>
+    </svg>
+    <button class="again" id="again">Refermer l'enveloppe</button>
+  </section>
+</main>
+
+<script>
+(function(){
+  const env=document.getElementById('envelope'),letter=document.getElementById('letter'),
+        next=document.getElementById('next'),hint=document.getElementById('hint'),
+        envSection=document.getElementById('envSection');
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function hearts(){
+    if(reduce)return;
+    const r=env.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.45;
+    const colors=['var(--rose)','var(--rose-deep)','#e8a3b5','var(--moon)'];
+    for(let i=0;i<26;i++){
+      const h=document.createElement('span');
+      h.className='fly-heart';h.textContent='♥';
+      h.style.left=cx+'px';h.style.top=cy+'px';
+      h.style.color=colors[i%colors.length];
+      h.style.fontSize=(14+Math.random()*22)+'px';
+      document.body.appendChild(h);
+      const dx=(Math.random()-.5)*Math.min(innerWidth,520),dy=140+Math.random()*260,rot=(Math.random()-.5)*70;
+      h.animate([
+        {transform:'translate(-50%,-50%) scale(.3)',opacity:0},
+        {opacity:1,offset:.15},
+        {transform:'translate(calc(-50% + '+dx+'px), calc(-50% - '+dy+'px)) rotate('+rot+'deg) scale(1)',opacity:0}
+      ],{duration:1400+Math.random()*900,delay:Math.random()*350,easing:'cubic-bezier(.2,.7,.3,1)',fill:'both'}).onfinish=()=>h.remove();
+    }
+  }
+
+  function open(){
+    env.classList.add('open');
+    setTimeout(hearts,300);
+    hint.textContent='';
+    setTimeout(()=>{
+      envSection.hidden=true;
+      letter.hidden=false; next.hidden=false;
+      letter.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+    }, reduce?0:1050);
+  }
+  env.addEventListener('click',open);
+  document.getElementById('again').addEventListener('click',()=>{
+    letter.hidden=true; next.hidden=true; envSection.hidden=false;
+    env.classList.remove('open'); hint.textContent="Touche l'enveloppe pour l'ouvrir";
+    window.scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+  });
+
+
+  // Ciel étoilé discret
+  const c=document.getElementById('stars'),ctx=c.getContext('2d');let stars=[];
+  function size(){
+    const d=window.devicePixelRatio||1;c.width=innerWidth*d;c.height=innerHeight*d;ctx.setTransform(d,0,0,d,0,0);
+    stars=Array.from({length:Math.round(innerWidth*innerHeight/9000)},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.3,p:Math.random()*6.28}));
+  }
+  function draw(t){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    for(const s of stars){
+      const a=reduce?.6:.35+.35*Math.sin(t/1400+s.p);
+      ctx.fillStyle='rgba(241,227,200,'+a+')';ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,6.28);ctx.fill();
+    }
+    if(!reduce)requestAnimationFrame(draw);
+  }
+  addEventListener('resize',size);size();requestAnimationFrame(draw);
+})();
+</script>
+
+</body>
+</html>
